@@ -7,6 +7,7 @@ public class GrapplingGun : MonoBehaviour
 {
     [Header("Scripts Ref:")]
     public GrapplingRope grappleRope;
+    GameObject platform;
 
     [Header("Layers Settings:")]
     [SerializeField] private bool grappleToAll = false;
@@ -31,6 +32,7 @@ public class GrapplingGun : MonoBehaviour
     [Header("Distance:")]
     [SerializeField] private bool hasMaxDistance = false;
     [SerializeField] private float maxDistance = 20;
+    [SerializeField] GameObject gunPointer;
 
     private enum LaunchType
     {
@@ -50,6 +52,7 @@ public class GrapplingGun : MonoBehaviour
 
     [Header("Miscellanea")]
     [SerializeField] private float cooldown = 0.5f;
+    [SerializeField] private float mouseWheelScale = 1;
 
     [HideInInspector] private bool canGrapple;
     [HideInInspector] public Vector2 grapplePoint;
@@ -65,21 +68,26 @@ public class GrapplingGun : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKey(KeyCode.W))
+        SetGrapplePoint();
+
+        if(Input.GetKey(KeyCode.S))
         {
-            m_springJoint2D.distance += 0.01f;
+            m_springJoint2D.distance += 3 *Time.deltaTime;
         }
 
-        if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.W))
         {
-            m_springJoint2D.distance -= 0.01f;
+            m_springJoint2D.distance -= 3 * Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && canGrapple)
+        else 
         {
-            SetGrapplePoint();
+            m_springJoint2D.distance -= Input.mouseScrollDelta.y * mouseWheelScale * Time.deltaTime;
         }
-        else if (Input.GetKey(KeyCode.Mouse0))
+
+        m_springJoint2D.distance = Mathf.Clamp(m_springJoint2D.distance, 2, 10);
+
+        if (Input.GetKey(KeyCode.Mouse0))
         {
             if (grappleRope.enabled)
             {
@@ -103,13 +111,7 @@ public class GrapplingGun : MonoBehaviour
         }
         else if (Input.GetKeyUp(KeyCode.Mouse0))
         {
-            if(!canGrapple)
-            {
-                StartCoroutine(GrappleCooldown());
-            }
-            grappleRope.enabled = false;
-            m_springJoint2D.enabled = false;
-            m_rigidbody.gravityScale = 1;
+            EndGrapple();
         }
         else
         {
@@ -141,13 +143,26 @@ public class GrapplingGun : MonoBehaviour
             RaycastHit2D _hit = Physics2D.Raycast(firePoint.position, distanceVector.normalized);
             if (_hit.transform.gameObject.layer == grappableLayerNumber || grappleToAll)
             {
+                gunPointer.transform.position = m_camera.ScreenToWorldPoint(Input.mousePosition);
                 if (Vector2.Distance(_hit.point, firePoint.position) <= maxDistance || !hasMaxDistance)
                 {
-                    grapplePoint = _hit.point;
-                    grappleDistanceVector = grapplePoint - (Vector2)gunPivot.position;
-                    grappleRope.enabled = true;
+                    gunPointer.transform.position = _hit.point;
+
+                    if(Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        grapplePoint = _hit.point;
+                        grappleDistanceVector = grapplePoint - (Vector2)gunPivot.position;
+                        grappleRope.enabled = true;
+
+                        platform = _hit.transform.gameObject;
+                        platform.SendMessage("HitByRay");
+                        if (platform.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+                        {
+                            crumblingPlatform.crumbled += EndGrapple;
+                        }
+                    }
                 }
-            }
+            }           
         }
     }
 
@@ -199,6 +214,41 @@ public class GrapplingGun : MonoBehaviour
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(firePoint.position, maxDistance);
         }
+    }
+
+    public void EndGrapple()
+    {
+        if (!canGrapple)
+        {
+            StartCoroutine(GrappleCooldown());
+        }
+
+        if(platform.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+        {
+            crumblingPlatform.crumbled -= EndGrapple;
+        }
+        platform = null;
+
+        grappleRope.enabled = false;
+        m_springJoint2D.enabled = false;
+        m_rigidbody.gravityScale = 1;
+    }
+
+    public void EndGrapple(bool crumble)
+    {
+        if (!canGrapple)
+        {
+            StartCoroutine(GrappleCooldown());
+        }
+
+        if (platform.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+        {
+            crumblingPlatform.crumbled -= EndGrapple;
+        }
+        platform = null;
+        grappleRope.enabled = false;
+        m_springJoint2D.enabled = false;
+        m_rigidbody.gravityScale = 1;
     }
 
     IEnumerator GrappleCooldown()
