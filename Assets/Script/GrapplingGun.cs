@@ -5,16 +5,23 @@ using UnityEngine;
 
 public class GrapplingGun : MonoBehaviour
 {
+    private enum LaunchType
+    {
+        Transform_Launch,
+        Physics_Launch
+    }
+
     [Header("Scripts Ref:")]
     public GrapplingRope grappleRope;
-    GameObject platform;
+    GameObject hitGameobject;
+    PlayerController player;
 
     [Header("Layers Settings:")]
     [SerializeField] private bool grappleToAll = false;
     [SerializeField] private int grappableLayerNumber = 9;
 
     [Header("Main Camera:")]
-    public Camera m_camera;
+    public UnityEngine.Camera m_camera;
 
     [Header("Transform Ref:")]
     public Transform gunHolder;
@@ -31,14 +38,12 @@ public class GrapplingGun : MonoBehaviour
 
     [Header("Distance:")]
     [SerializeField] private bool hasMaxDistance = false;
-    [SerializeField] private float maxDistance = 20;
-    [SerializeField] GameObject gunPointer;
-
-    private enum LaunchType
+    [SerializeField] private float defaultMaxDistance;
+    [HideInInspector] private float maxDistance()
     {
-        Transform_Launch,
-        Physics_Launch
+        return defaultMaxDistance + 0.5f * player.bodyParts.Count;
     }
+    [SerializeField] GameObject gunPointer;
 
     [Header("Launching:")]
     [SerializeField] private bool launchToPoint = true;
@@ -51,8 +56,15 @@ public class GrapplingGun : MonoBehaviour
     [SerializeField] private float targetFrequncy = 1;
 
     [Header("Miscellanea")]
+    [SerializeField] private float grappleKeyRememberTime;
+    [HideInInspector] private float grappleKeyCurrentRemember;
     [SerializeField] private float cooldown = 0.5f;
     [SerializeField] private float mouseWheelScale = 1;
+    [SerializeField] private float defaultRopeLenghtSpeed = 3;
+    private float ropeLengthSpeed()
+    {
+        return defaultRopeLenghtSpeed + (0.2f * player.bodyParts.Count);
+    }
 
     [HideInInspector] private bool canGrapple;
     [HideInInspector] public Vector2 grapplePoint;
@@ -60,24 +72,26 @@ public class GrapplingGun : MonoBehaviour
 
     private void Start()
     {
+        player = FindObjectOfType<PlayerController>();
         grappleRope.enabled = false;
         m_springJoint2D.enabled = false;
         canGrapple = true;
-        m_camera = Camera.main;
+        m_camera = UnityEngine.Camera.main;
     }
 
     private void Update()
     {
+        grappleKeyCurrentRemember -= Time.deltaTime;
         SetGrapplePoint();
 
         if(Input.GetKey(KeyCode.S))
         {
-            m_springJoint2D.distance += 3 *Time.deltaTime;
+            m_springJoint2D.distance += ropeLengthSpeed() * Time.deltaTime;
         }
 
         else if (Input.GetKey(KeyCode.W))
         {
-            m_springJoint2D.distance -= 3 * Time.deltaTime;
+            m_springJoint2D.distance -= ropeLengthSpeed() * Time.deltaTime;
         }
 
         else 
@@ -85,7 +99,13 @@ public class GrapplingGun : MonoBehaviour
             m_springJoint2D.distance -= Input.mouseScrollDelta.y * mouseWheelScale * Time.deltaTime;
         }
 
-        m_springJoint2D.distance = Mathf.Clamp(m_springJoint2D.distance, 2, 10);
+        m_springJoint2D.distance = Mathf.Clamp(m_springJoint2D.distance, 2, maxDistance());
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            grappleKeyCurrentRemember = grappleKeyRememberTime;
+
+        }
 
         if (Input.GetKey(KeyCode.Mouse0))
         {
@@ -118,6 +138,7 @@ public class GrapplingGun : MonoBehaviour
             Vector2 mousePos = m_camera.ScreenToWorldPoint(Input.mousePosition);
             RotateGun(mousePos, true);
         }
+
     }
 
     void RotateGun(Vector3 lookPoint, bool allowRotationOverTime)
@@ -144,19 +165,20 @@ public class GrapplingGun : MonoBehaviour
             if (_hit.transform.gameObject.layer == grappableLayerNumber || grappleToAll)
             {
                 gunPointer.transform.position = m_camera.ScreenToWorldPoint(Input.mousePosition);
-                if (Vector2.Distance(_hit.point, firePoint.position) <= maxDistance || !hasMaxDistance)
+                if (Vector2.Distance(_hit.point, firePoint.position) <= maxDistance() || !hasMaxDistance)
                 {
-                    gunPointer.transform.position = _hit.point;
+                    gunPointer.transform.position = _hit.transform.gameObject.transform.position; // _hit.point;
 
-                    if(Input.GetKeyDown(KeyCode.Mouse0))
+                    if(grappleKeyCurrentRemember > 0 && Input.GetKey(KeyCode.Mouse0))
                     {
-                        grapplePoint = _hit.point;
+                        grappleKeyCurrentRemember = 0;
+                        grapplePoint = _hit.transform.gameObject.transform.position; // _hit.point;
                         grappleDistanceVector = grapplePoint - (Vector2)gunPivot.position;
                         grappleRope.enabled = true;
 
-                        platform = _hit.transform.gameObject;
-                        platform.SendMessage("HitByRay");
-                        if (platform.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+                        hitGameobject = _hit.transform.gameObject;
+                        hitGameobject.SendMessage("HitByRay");
+                        if (hitGameobject.TryGetComponent(out CrumblingPlatform crumblingPlatform))
                         {
                             crumblingPlatform.crumbled += EndGrapple;
                         }
@@ -212,7 +234,7 @@ public class GrapplingGun : MonoBehaviour
         if (firePoint != null && hasMaxDistance)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(firePoint.position, maxDistance);
+            Gizmos.DrawWireSphere(firePoint.position, maxDistance());
         }
     }
 
@@ -223,11 +245,12 @@ public class GrapplingGun : MonoBehaviour
             StartCoroutine(GrappleCooldown());
         }
 
-        if(platform.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+        if(hitGameobject.TryGetComponent(out CrumblingPlatform crumblingPlatform))
         {
             crumblingPlatform.crumbled -= EndGrapple;
         }
-        platform = null;
+
+        hitGameobject = null;
 
         grappleRope.enabled = false;
         m_springJoint2D.enabled = false;
@@ -240,12 +263,8 @@ public class GrapplingGun : MonoBehaviour
         {
             StartCoroutine(GrappleCooldown());
         }
-
-        if (platform.TryGetComponent(out CrumblingPlatform crumblingPlatform))
-        {
-            crumblingPlatform.crumbled -= EndGrapple;
-        }
-        platform = null;
+        hitGameobject.GetComponent<CrumblingPlatform>().crumbled -= EndGrapple;
+        hitGameobject = null;
         grappleRope.enabled = false;
         m_springJoint2D.enabled = false;
         m_rigidbody.gravityScale = 1;

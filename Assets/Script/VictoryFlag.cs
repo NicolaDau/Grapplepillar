@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class VictoryFlag : MonoBehaviour
 {
     GameManager gameManager;
-
+    [SerializeField] string sceneToLoad;
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -15,7 +15,16 @@ public class VictoryFlag : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            gameManager.EndLevel(SceneManager.GetActiveScene().buildIndex + 1, "You Won!");
+            if(sceneToLoad == "")
+            {
+                gameManager.EndLevel(SceneManager.GetActiveScene().buildIndex + 1, "Level Complete!");
+
+            }
+            else
+            {
+                gameManager.EndLevel(sceneToLoad, "Level Complete!");
+
+            }
         }
     }
 }

@@ -9,15 +9,32 @@ public class CrumblingPlatform : MonoBehaviour
 
     public event Action<bool> crumbled;
 
-    SpriteRenderer spriteRenderer;
+    [SerializeField]SpriteRenderer PlatformSprite, CursorSprite;
     Collider2D col;
 
 
     private void Start()
     {
-        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         col = gameObject.GetComponent<Collider2D>();
+        CursorSprite.enabled = false;
+
     }
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.tag == "PlayerDistance")
+        {
+            CursorSprite.enabled = true;
+        }
+    }
+    void OnTriggerExit2D(Collider2D collider)
+    {
+        if (collider.gameObject.tag == "PlayerDistance")
+        {
+            CursorSprite.enabled = false;
+        }
+    }
+
     void HitByRay()
     {
         StartCoroutine(Crumble());
@@ -25,11 +42,12 @@ public class CrumblingPlatform : MonoBehaviour
      IEnumerator Crumble()
     {
         yield return new WaitForSeconds(crumbleTimer);
-        spriteRenderer.enabled = false;
+        PlatformSprite.enabled = false;
         col.enabled = false;
         crumbled(true);
         yield return new WaitForSeconds(crumbleTimer);
-        spriteRenderer.enabled = true;
+        PlatformSprite.enabled = true;
         col.enabled = true;
+        crumbled(false);
     }
 }
