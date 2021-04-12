@@ -131,7 +131,7 @@ public class GrapplingGun : MonoBehaviour
         }
         else if (Input.GetKeyUp(KeyCode.Mouse0))
         {
-            EndGrapple();
+            EndGrapple(true);
         }
         else
         {
@@ -177,11 +177,9 @@ public class GrapplingGun : MonoBehaviour
                         grappleRope.enabled = true;
 
                         hitGameobject = _hit.transform.gameObject;
-                        hitGameobject.SendMessage("HitByRay");
-                        if (hitGameobject.TryGetComponent(out CrumblingPlatform crumblingPlatform))
-                        {
-                            crumblingPlatform.crumbled += EndGrapple;
-                        }
+                        hitGameobject.GetComponent<CrumblingPlatform>().HitByRay();
+                        hitGameobject.GetComponent<CrumblingPlatform>().crumbled += EndGrapple;
+                        
                     }
                 }
             }           
@@ -238,14 +236,14 @@ public class GrapplingGun : MonoBehaviour
         }
     }
 
-    public void EndGrapple()
+    public void EndGrapple(bool crumble)
     {
         if (!canGrapple)
         {
             StartCoroutine(GrappleCooldown());
         }
 
-        if(hitGameobject.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+       if(hitGameobject.TryGetComponent(out CrumblingPlatform crumblingPlatform))
         {
             crumblingPlatform.crumbled -= EndGrapple;
         }
@@ -257,18 +255,7 @@ public class GrapplingGun : MonoBehaviour
         m_rigidbody.gravityScale = 1;
     }
 
-    public void EndGrapple(bool crumble)
-    {
-        if (!canGrapple)
-        {
-            StartCoroutine(GrappleCooldown());
-        }
-        hitGameobject.GetComponent<CrumblingPlatform>().crumbled -= EndGrapple;
-        hitGameobject = null;
-        grappleRope.enabled = false;
-        m_springJoint2D.enabled = false;
-        m_rigidbody.gravityScale = 1;
-    }
+
 
     IEnumerator GrappleCooldown()
     {

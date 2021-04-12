@@ -35,19 +35,25 @@ public class CrumblingPlatform : MonoBehaviour
         }
     }
 
-    void HitByRay()
+    public void HitByRay()
     {
-        StartCoroutine(Crumble());
+        //StartCoroutine(Crumble());
     }
      IEnumerator Crumble()
     {
         yield return new WaitForSeconds(crumbleTimer);
+        if(crumbled != null)
+        {
+            crumbled(true);
+        }
         PlatformSprite.enabled = false;
         col.enabled = false;
-        crumbled(true);
         yield return new WaitForSeconds(crumbleTimer);
         PlatformSprite.enabled = true;
         col.enabled = true;
-        crumbled(false);
+        if (crumbled != null)
+        {
+            crumbled(false);
+        }
     }
 }
