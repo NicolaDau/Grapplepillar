@@ -175,10 +175,13 @@ public class GrapplingGun : MonoBehaviour
                         grapplePoint = _hit.transform.gameObject.transform.position; // _hit.point;
                         grappleDistanceVector = grapplePoint - (Vector2)gunPivot.position;
                         grappleRope.enabled = true;
-
+                        ParticleManager.Instance.SpawnOnce(ParticleManager.Instance.shootHookFX, gunPivot.transform.position + gunPivot.transform.right * 0.7f, gunPivot.transform.rotation);
+                        
                         hitGameobject = _hit.transform.gameObject;
-                        hitGameobject.GetComponent<CrumblingPlatform>().HitByRay();
-                        hitGameobject.GetComponent<CrumblingPlatform>().crumbled += EndGrapple;
+                        ParticleManager.Instance.SpawnOnce(ParticleManager.Instance.GrappledFX, hitGameobject.transform.position);
+                        AudioManager.Instance.PlayAudio(AudioManager.Instance.grappled, 0.8f, 1.2f);                       
+                        hitGameobject.GetComponent<GrapplePoint>().HitByRay();
+                        hitGameobject.GetComponent<GrapplePoint>().crumbled += EndGrapple;
                         
                     }
                 }
@@ -243,13 +246,14 @@ public class GrapplingGun : MonoBehaviour
             StartCoroutine(GrappleCooldown());
         }
 
-       if(hitGameobject.TryGetComponent(out CrumblingPlatform crumblingPlatform))
+       if(hitGameobject.TryGetComponent(out GrapplePoint crumblingPlatform))
         {
+            crumblingPlatform.EndGrapple();
             crumblingPlatform.crumbled -= EndGrapple;
         }
 
         hitGameobject = null;
-
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.leaveGrapple, 0.8f, 1.4f);
         grappleRope.enabled = false;
         m_springJoint2D.enabled = false;
         m_rigidbody.gravityScale = 1;

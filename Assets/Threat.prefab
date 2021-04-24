@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7354177258348720757}
   - component: {fileID: 8153634554321999627}
+  - component: {fileID: 3803567715700744278}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -71,7 +72,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: fbb183ef9d2b3834994def25de6f30df, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6183d7c8d1f2ebf458f2670d568a010f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -82,6 +83,21 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3803567715700744278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3654551624266794208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f76d0b5646bf3f5408c42b7be11f8d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: -0.5, y: -0.5}
+  shadowMaterial: {fileID: 2100000, guid: 9f5651650bca78b47a92353bf661459b, type: 2}
+  shadowColor: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 0.8784314}
 --- !u!1 &4059258821632706848
 GameObject:
   m_ObjectHideFlags: 0
@@ -94,6 +110,7 @@ GameObject:
   - component: {fileID: 4059258821632706850}
   - component: {fileID: 4059258821632706853}
   - component: {fileID: 7152223596555661070}
+  - component: {fileID: 562110681577732676}
   m_Layer: 2
   m_Name: Threat
   m_TagString: Untagged
@@ -165,3 +182,22 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.35
+--- !u!95 &562110681577732676
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4059258821632706848}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b977ff318b73933418a888fd34e9d2cf, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

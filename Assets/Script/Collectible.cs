@@ -7,17 +7,16 @@ public class Collectible : MonoBehaviour
     [SerializeField] GameObject scoreText;
     Collider2D col;
     PlayerController player;
-    GameManager gameManager;
-    AudioManager audioManager;
 
     bool collected;
     private void Start()
     {
         collected = false;
         player = FindObjectOfType<PlayerController>();
-        gameManager = FindObjectOfType<GameManager>();
-        audioManager = FindObjectOfType<AudioManager>();
         col = gameObject.GetComponent<Collider2D>();
+
+        GameManager.Instance.AddCollectible(this);
+
     }
     void FixedUpdate()
     {
@@ -42,10 +41,26 @@ public class Collectible : MonoBehaviour
             collected = true;
             col.enabled = false;
             player.AddBodyPart();
-            gameManager.AddScore(50);
-            audioManager.PlayAudio(audioManager.pickupCollected, 1 + 0.08f * player.bodyParts.Count);
+            ParticleManager FX = FindObjectOfType<ParticleManager>();
+            FX.SpawnOnce(FX.coinFX, this.gameObject.transform.position);
+            GameManager.Instance.AddScore(50);
+            AudioManager.Instance.PlayAudio(AudioManager.Instance.pickupCollected, 1 + 0.08f * player.bodyParts.Count);
             Instantiate(scoreText, transform.position, Quaternion.identity);
             Destroy(transform.parent.gameObject);
         }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("GameplayArea"))
+        {
+            Destroy(transform.parent.gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.RemoveCollectible(this);
+
     }
 }

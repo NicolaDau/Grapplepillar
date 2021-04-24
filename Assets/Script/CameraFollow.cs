@@ -8,12 +8,15 @@ public class CameraFollow : MonoBehaviour
     private float lerpSpeed;
     [SerializeField] private float minDistance;
     [SerializeField] private float maxDistance;
-    [SerializeField] private Vector3 offset;
-    [SerializeField] bool targetPlayer;
-    PlayerController playerController;
-    GameManager gameManager;
-    private GameObject playerHead, playerLastBody;
     private Vector3 targetPosition;
+    [SerializeField] private Vector3 offset;
+    [SerializeField] public bool targetPlayer;
+    PlayerController playerController;
+    private GameObject playerHead, playerLastBody;
+
+    bool offsetting;
+    [SerializeField] float offsetTimer;
+    float currentOffsetTimer;
 
     [SerializeField] float startingSize = 18;
     float smoothTime = 0.3f;
@@ -23,7 +26,6 @@ public class CameraFollow : MonoBehaviour
 
     private void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
         targetPosition = transform.position;
         if (targetPlayer)
         {
@@ -33,23 +35,43 @@ public class CameraFollow : MonoBehaviour
                 playerHead = playerController.head;
             }
         }
+
+        currentOffsetTimer = offsetTimer;
     }
 
     private void FixedUpdate()
     {
         if (targetPlayer)
         {
+            if (GameManager.Instance.playerCentreVelocity.y < 0)
+            {
+                // followSpeed = 0.5f + (0.0001f * Mathf.Pow(Mathf.Abs(GameManager.Instance.playerCentreVelocity.y), 2));
+                offset.y = 0 - (0.0017f * Mathf.Pow(Mathf.Abs(GameManager.Instance.playerCentreVelocity.y), 2));
+                    }
+            /*else
+            {
+                if (followSpeed >= 0.5f)
+                {
+                    followSpeed = 0.5f;
+                }
+                    if (offset.y <= 0)
+                {
+                    offset.y = 0 + (0.02f * Mathf.Abs(GameManager.Instance.playerCentreVelocity.y));
+                }
+            }
+            */
+
             playerLastBody = playerController.lastBodyPart;
             if (playerHead != null && playerLastBody != null)
             {
                 Vector3 posNoZ = transform.position;
-                posNoZ.z = gameManager.GetPlayerCentre().z;
+                posNoZ.z = GameManager.Instance.GetPlayerCentre().z;
 
 
-                Vector3 playerDirection = (gameManager.GetPlayerCentre() - posNoZ);
+                Vector3 playerDirection = (GameManager.Instance.GetPlayerCentre() - posNoZ);
                 lerpSpeed = playerDirection.magnitude * 5f;
-                targetPosition = transform.position + (playerDirection.normalized * lerpSpeed * Time.deltaTime);
-                transform.position = Vector3.Lerp(transform.position, targetPosition + offset, followSpeed);
+                targetPosition = transform.position + (playerDirection.normalized * lerpSpeed * Time.deltaTime) + offset;
+                transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed);
             }
 
             

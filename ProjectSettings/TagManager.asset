@@ -8,6 +8,7 @@ TagManager:
   - Collectible
   - PlayerDistance
   - ExBody
+  - GameplayArea
   layers:
   - Default
   - TransparentFX

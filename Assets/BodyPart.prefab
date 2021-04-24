@@ -148,6 +148,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2069055700808797223}
   - component: {fileID: 8908769249481860368}
+  - component: {fileID: 896092944672435421}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -220,6 +221,21 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &896092944672435421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2636539359321057661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f76d0b5646bf3f5408c42b7be11f8d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: -0.5, y: -0.5}
+  shadowMaterial: {fileID: 2100000, guid: 9f5651650bca78b47a92353bf661459b, type: 2}
+  shadowColor: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 0.8784314}
 --- !u!1 &5955445657316906026
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,6 +249,7 @@ GameObject:
   - component: {fileID: 5955445657316906031}
   - component: {fileID: 5955445657316906024}
   - component: {fileID: 909151141970874463}
+  - component: {fileID: 7448379022136756646}
   m_Layer: 2
   m_Name: BodyPart
   m_TagString: Player
@@ -333,6 +350,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &7448379022136756646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5955445657316906026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 480658de6629f0a4cb009353dc81a98a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSpeed: 35
 --- !u!1 &8473061173353369787
 GameObject:
   m_ObjectHideFlags: 0

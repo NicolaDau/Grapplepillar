@@ -8,11 +8,16 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private float endTimer = 2f;
 
-    Collectible[] collectibles;
+   public List<Collectible> collectibles = new List<Collectible>();
+   public List<Threat> threats = new List<Threat>();
+   public List<GrapplePoint> grapplePoints = new List<GrapplePoint>();
 
     [SerializeField] private Image pauseMenu;
     [SerializeField] private Text endGameText;
     bool gamePaused;
+
+    Vector3 previousCentrePosition;
+    public Vector3 playerCentreVelocity;
 
     PlayerController player;
     int score = 0;
@@ -23,15 +28,61 @@ public class GameManager : MonoBehaviour
     }
     [SerializeField] private Text multiplierText;
 
-    private void Start()
+    public static GameManager Instance = null;
+
+    private void Awake()
     {
-        collectibles = FindObjectsOfType<Collectible>();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    { 
+
         player = FindObjectOfType<PlayerController>();
         gamePaused = false;
         endGameText.gameObject.SetActive(false);
         Time.timeScale = 1;
     }
-    void Update()
+
+
+    public void AddCollectible(Collectible collectible)
+    {
+        collectibles.Add(collectible);
+    }
+
+    public void AddThreat(Threat threat)
+    {
+        threats.Add(threat);
+    }
+
+    public void AddGrapplePoint(GrapplePoint grapplePoint)
+    {
+        grapplePoints.Add(grapplePoint);
+    }
+
+    public void RemoveCollectible(Collectible collectible)
+    {
+        collectibles.Remove(collectible);
+    }
+
+    public void RemoveThreat(Threat threat)
+    {
+        threats.Remove(threat);
+    }
+
+    public void RemoveGrapplePoint(GrapplePoint grapplePoint)
+    {
+        grapplePoints.Remove(grapplePoint);
+    }
+
+    void FixedUpdate()
     {
         if(Input.GetKeyDown(KeyCode.R))
         {
@@ -44,6 +95,11 @@ public class GameManager : MonoBehaviour
         }
 
         multiplierText.text = "x" + scoreMultiplier().ToString();
+
+
+        playerCentreVelocity = (GetPlayerCentre() - previousCentrePosition) / Time.deltaTime;
+        previousCentrePosition = GetPlayerCentre();
+
     }
 
     public void PauseGame()

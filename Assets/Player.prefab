@@ -152,6 +152,7 @@ GameObject:
   - component: {fileID: 9203121811545450838}
   - component: {fileID: 2872317230828241593}
   - component: {fileID: 6849937696155155796}
+  - component: {fileID: 3120159938203684587}
   m_Layer: 2
   m_Name: Head
   m_TagString: Player
@@ -267,6 +268,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &3120159938203684587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2418733645930952904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 480658de6629f0a4cb009353dc81a98a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSpeed: 35
 --- !u!1 &2529241593229894876
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,7 +709,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.351197
+        value: 0.2
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -704,7 +718,7 @@ LineRenderer:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 0.065475464
+        value: 0.2
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -996,6 +1010,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6919745865509423030}
   - component: {fileID: 1311573380913383097}
+  - component: {fileID: 4540062800161123884}
   m_Layer: 2
   m_Name: Sprite
   m_TagString: Untagged
@@ -1068,6 +1083,21 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &4540062800161123884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4687050185535017875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f76d0b5646bf3f5408c42b7be11f8d34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: -0.5, y: -0.5}
+  shadowMaterial: {fileID: 2100000, guid: 9f5651650bca78b47a92353bf661459b, type: 2}
+  shadowColor: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 0.8784314}
 --- !u!1 &6728460972097612823
 GameObject:
   m_ObjectHideFlags: 0

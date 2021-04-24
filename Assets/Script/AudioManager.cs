@@ -9,12 +9,29 @@ public class AudioManager : MonoBehaviour
     [Header("Player Sounds")]
     public AudioClip pickupCollected;
     public AudioClip hit;
+    public AudioClip grappled;
+    public AudioClip leaveGrapple;
+
+    public static AudioManager Instance = null;
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+
         audioSource = gameObject.GetComponent<AudioSource>();
     }
 
+    private void OnLevelWasLoaded(int level)
+    {
+        
+    }
 
     public void PlayAudio(AudioClip audio)
     {

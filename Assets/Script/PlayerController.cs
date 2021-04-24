@@ -43,24 +43,11 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     Rigidbody2D lastBodyPartRb;
 
-    GameManager gameManager;
-    AudioManager audioManager;
-
     private void Awake()
     {
         for (int i = 0; i < startingBodyParts; i++)
         {
             AddBodyPart();
-        }
-
-        if (gameManager == null)
-        {
-            gameManager = FindObjectOfType<GameManager>();
-        }
-
-        if (audioManager == null)
-        {
-            audioManager = FindObjectOfType<AudioManager>();
         }
     }
     private void Start()
@@ -173,8 +160,9 @@ public class PlayerController : MonoBehaviour
         {
             if (bodyParts.Count > 1)
             {
+                ParticleManager.Instance.SpawnOnce(ParticleManager.Instance.bloodSplatterBurstFX, lastBodyPart.transform.position);
                 DetachBodyPart();
-                audioManager.PlayAudio(audioManager.hit, 0.4f + 0.08f * bodyParts.Count);
+                AudioManager.Instance.PlayAudio(AudioManager.Instance.hit, 0.4f + 0.08f * bodyParts.Count);
                 StartCoroutine(Invincibility("Hit"));
             }
             else
@@ -187,6 +175,7 @@ public class PlayerController : MonoBehaviour
     public void DetachBodyPart()
     {
             lastBodyPart.gameObject.tag = "ExBody";
+            lastBodyPart.GetComponentInChildren<SpriteRenderer>().color = new Color(0.8f, 0.8f, 0.8f, 1);
             Destroy(lastBodyPart.gameObject.GetComponent<SpringJoint2D>());
             if (lastBodyPart != head)
             {
@@ -200,7 +189,8 @@ public class PlayerController : MonoBehaviour
     }
     public void Die()
     {
-        gameManager.EndLevel(SceneManager.GetActiveScene().buildIndex, "You Died!");
+        FindObjectOfType<CameraFollow>().targetPlayer = false;
+        GameManager.Instance.EndLevel(SceneManager.GetActiveScene().buildIndex, "You Died!");
     }
 
     public void LenghtUpdate()
@@ -216,6 +206,7 @@ public class PlayerController : MonoBehaviour
         {
             Instantiate(grapplePointPrefab, item.transform.position, Quaternion.identity);
             grapplePointPrefab.transform.localScale = new Vector3(1, 1, 1);
+            ParticleManager.Instance.SpawnOnce(ParticleManager.Instance.bloodSplatterBurstFX, item.transform.position);
             Destroy(item);
         }
         flyingParts = false;
@@ -240,6 +231,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator AutomaticDestruction(GameObject exBodyPart)
     {
         yield return new WaitForSeconds(3);
+        ParticleManager.Instance.SpawnOnce(ParticleManager.Instance.bloodSplatterBurstFX, exBodyPart.transform.position);
         Instantiate(grapplePointPrefab, exBodyPart.transform.position, Quaternion.identity);
         grapplePointPrefab.transform.localScale = new Vector3(1, 1, 1);
         Destroy(exBodyPart);
