@@ -11,7 +11,8 @@ public class GrapplePoint : MonoBehaviour
     [SerializeField]SpriteRenderer PlatformSprite, CursorSprite;
     Collider2D col;
     Animator anim;
-  
+
+    [SerializeField] Color normalColor, grappledColor;
     ParticleSystem parSys;
 
     private void Start()
@@ -20,6 +21,11 @@ public class GrapplePoint : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         parSys = gameObject.GetComponentInChildren<ParticleSystem>();
         GameManager.Instance.AddGrapplePoint(this);
+
+        PlatformSprite.color = normalColor;
+        var main = parSys.main;
+        main.startColor = normalColor;
+
     }
 
     void OnTriggerEnter2D(Collider2D collider)
@@ -49,6 +55,8 @@ public class GrapplePoint : MonoBehaviour
         main.startSize = 0.15f;
         var em = parSys.emission;
         em.rateOverTime = 30;
+        PlatformSprite.color = grappledColor;
+        main.startColor = grappledColor;
     }
      IEnumerator Crumble()
     {
@@ -77,6 +85,8 @@ public class GrapplePoint : MonoBehaviour
         main.startSize = 0.1f;
         var em = parSys.emission;
         em.rateOverTime = 3;
+        PlatformSprite.color = normalColor;
+        main.startColor = normalColor;
     }
 
     private void OnDestroy()

@@ -9,10 +9,14 @@ public class AudioManager : MonoBehaviour
     [Header("Player Sounds")]
     public AudioClip pickupCollected;
     public AudioClip hit;
+    public AudioClip die;
     public AudioClip grappled;
     public AudioClip leaveGrapple;
+    public AudioClip rope;
 
     public static AudioManager Instance = null;
+
+
 
     private void Awake()
     {
@@ -28,13 +32,15 @@ public class AudioManager : MonoBehaviour
         audioSource = gameObject.GetComponent<AudioSource>();
     }
 
-    private void OnLevelWasLoaded(int level)
+    public void PlayWithVolume(AudioClip audio, float volume)
     {
-        
+        audioSource.volume = volume;
+        audioSource.pitch = (1);
+        audioSource.PlayOneShot(audio);
     }
-
     public void PlayAudio(AudioClip audio)
     {
+        audioSource.volume = 0.5f;
         audioSource.pitch = (1);
         audioSource.PlayOneShot(audio);
     }

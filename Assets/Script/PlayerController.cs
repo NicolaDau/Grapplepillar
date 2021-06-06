@@ -9,17 +9,17 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Misc Stats:")]
     [SerializeField] float walkingSpeed;
-    [SerializeField] float defaultAssSpeed;
-    [SerializeField] float assSpeed()
+    [SerializeField] float defaultswingSpeed;
+    [SerializeField] float swingSpeed()
     {
-        return defaultAssSpeed + 100 * bodyParts.Count;
+        return defaultswingSpeed + 100 * bodyParts.Count;
     }
     [SerializeField] int maxBodyParts;
     [SerializeField] int startingBodyParts;
     [SerializeField] float invincibilityFrames;
     [HideInInspector] bool invincible;
     [HideInInspector] bool flyingParts;
-
+    [HideInInspector] bool alive;
     [Header("Butterfly Stats:")]
     [SerializeField] float rallentyAmount;
     [SerializeField] float regenAmount;
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject grapplePointPrefab;
 
     [Header("Other References:")]
-    [SerializeField] Sprite[] bodySprites;
+    //[SerializeField] Sprite[] bodySprites;
     [SerializeField] public GameObject head;
     [SerializeField] public GameObject lastBodyPart;
     [SerializeField] public List<GameObject> bodyParts = new List<GameObject>();
@@ -51,7 +51,8 @@ public class PlayerController : MonoBehaviour
         }
     }
     private void Start()
-    {  
+    {
+        alive = true;
         inButterflyMode = false;
         invincible = false;
         cooldownOver = true;
@@ -79,6 +80,7 @@ public class PlayerController : MonoBehaviour
              { DetachBodyPart(); }
         }
 
+        //head.GetComponent<Rigidbody2D>().mass = 1 + 0.2f * Mathf.Pow(Mathf.Abs(GameManager.Instance.playerCentreVelocity.y), 2);
        //if (!grapplingRope.enabled)
        //{
        //     Vector2 movementDirection = new Vector2(Input.GetAxis("Horizontal") * walkingSpeed * Time.deltaTime, 0);
@@ -91,7 +93,7 @@ public class PlayerController : MonoBehaviour
 
         if (grapplingRope.isGrappling && lastBodyPartRb != null)
         {
-            Vector2 force = new Vector2(Input.GetAxis("Horizontal") * assSpeed() * Time.deltaTime, 0);
+            Vector2 force = new Vector2(Input.GetAxis("Horizontal") * swingSpeed() * Time.deltaTime, 0);
             lastBodyPartRb.AddForce(force);
         }
 
@@ -141,7 +143,7 @@ public class PlayerController : MonoBehaviour
             GameObject bodyPrefabClone = Instantiate(bodyPrefab, new Vector3(lastBodyPart.transform.position.x - 0.8f, lastBodyPart.transform.position.y, lastBodyPart.transform.position.z), Quaternion.identity) as GameObject;
             bodyPrefabClone.transform.parent = this.gameObject.transform;
             bodyPrefabClone.gameObject.GetComponent<SpringJoint2D>().connectedBody = lastBodyPart.gameObject.GetComponent<Rigidbody2D>();
-            bodyPrefabClone.GetComponentInChildren<SpriteRenderer>().sprite = bodySprites[Random.Range(0, bodySprites.Count())];
+            //bodyPrefabClone.GetComponentInChildren<SpriteRenderer>().sprite = bodySprites[Random.Range(0, bodySprites.Count())];
             bodyParts.Add(bodyPrefabClone.gameObject);
             if (lastBodyPart != head)
             {
@@ -156,7 +158,7 @@ public class PlayerController : MonoBehaviour
 
     public void Hit()
     {
-        if (!invincible)
+        if (!invincible && alive)
         {
             if (bodyParts.Count > 1)
             {
@@ -169,13 +171,15 @@ public class PlayerController : MonoBehaviour
             {
                 Die();
             }
+            StartCoroutine(GameManager.Instance.ModifyTime(0.08f, 0));
+
         }
     }
 
     public void DetachBodyPart()
     {
             lastBodyPart.gameObject.tag = "ExBody";
-            lastBodyPart.GetComponentInChildren<SpriteRenderer>().color = new Color(0.8f, 0.8f, 0.8f, 1);
+            lastBodyPart.GetComponentInChildren<SpriteRenderer>().color = new Color(0.8f, 0.2f, 0.8f, 1);
             Destroy(lastBodyPart.gameObject.GetComponent<SpringJoint2D>());
             if (lastBodyPart != head)
             {
@@ -189,7 +193,10 @@ public class PlayerController : MonoBehaviour
     }
     public void Die()
     {
+        alive = false;
         FindObjectOfType<CameraFollow>().targetPlayer = false;
+        StartCoroutine(GameManager.Instance.ModifyTime(3, 0.2f));
+        AudioManager.Instance.PlayWithVolume(AudioManager.Instance.die, 1f);
         GameManager.Instance.EndLevel(SceneManager.GetActiveScene().buildIndex, "You Died!");
     }
 

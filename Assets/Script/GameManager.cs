@@ -119,6 +119,12 @@ public class GameManager : MonoBehaviour
         gamePaused = !gamePaused;
     }
 
+    public IEnumerator ModifyTime(float timer, float timescale)
+    {
+        Time.timeScale = timescale;
+        yield return new WaitForSecondsRealtime(timer);
+        Time.timeScale = 1;
+    }
     public void AddScore(int amount)
     {
         score += amount * scoreMultiplier();
